@@ -2,7 +2,7 @@
 
 ## Members
 
-| 姓名   | Student ID | Github ID  |
+| Name | Student ID | Github ID  |
 | ---- | ---------- | ---------- |
 | 王若晖  | PB15000142 | noirgif    |
 | 张一卓  | PB15111610 | eastOffice |
