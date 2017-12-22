@@ -8,10 +8,10 @@ Rust中由于每个value都拥有一个owner，reference是这样一种机制，
 
 ```rust
 {
-    let s1 = String::from("hello");
+  let s1 = String::from("hello");
   
 	let s2 = s1; // s1's ownership is transferred to s2, since String is not Copy
-  	let s3 = &s2; // s3 got s2's string, without taking its ownership
+  let s3 = &s2; // s3 got s2's string, without taking its ownership
 }
 ```
 
@@ -51,3 +51,63 @@ print("x is {}", x);
 ```
 
 会输出`x is 5` 。
+
+##`Rc<T>`
+
+`Box<T>`拥有对数据的所有权，因此同一个数据最多只能有一个box指向该数据。
+
+```rust
+let x = Box::new(5);
+let y = x;
+println!("{}", x); // error here
+```
+
+原因和之前的`String`相同，`Box`为了保证对数据的所有权，因此不能复制。
+
+这里就有`Rc<T>`来满足这种需求。rc表示reference counted。这和C的`std::shared_ptr`类似，每一个指向该数据rc会给计数器加1，当计数器归0时，该数据被释放，该
+
+```rust
+  let b;
+  {
+    let a = Rc::new(5);
+    b = Rc::clone(&a);
+  }
+  println!("a is {}", b); // prints a is 5
+```
+
+在`rc.rs`中Rc是这样定义的：
+
+```rust
+struct RcBox<T: ?Sized> {
+    strong: Cell<usize>,
+    weak: Cell<usize>,
+    value: T,
+}
+
+
+pub struct Rc<T: ?Sized> {
+    ptr: Shared<RcBox<T>>,
+    phantom: PhantomData<T>,
+}
+
+```
+
+其中`PhantomData`使得`Rc<T>`的行为和`T`实例的行为一致。和C++的`shared_ptr`类似，RcBox封装该数据和其strong引用和weak引用的计数值，Rc为指向该RcBox的指针，当clone时，strong引用的计数加1.
+
+```rust
+impl<T> Rc<T> {
+    #[inline]
+    fn clone(&self) -> Rc<T> {
+        self.inc_strong();
+        Rc { ptr: self.ptr }
+    }
+}
+
+trait RcBoxPtr<T: ?Sized> {
+    #[inline]
+    fn inc_strong(&self) {
+        self.inner().strong.set(self.strong().checked_add(1).unwrap_or_else(|| unsafe { abort() }));
+    }
+}
+
+```
