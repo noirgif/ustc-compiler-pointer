@@ -33,20 +33,20 @@ C++语言与Java语言的不同之处，其中有一个一定要提到的就是�
 空指针就像定时炸弹，它给你的程序留下了隐患，并且你不知道什么时候它会突然显现出
 来给你带来麻烦。
 下面是两种常见的悬空指针的情况：
-    (1)引用已经释放的空间
-'''
-    int *a=new int(3);
-    //do something
-    delete a;
-    cout<<a;
-'''
 
-    (2)引用未定义的空间
-'''
-    int *a=new int[3];
-    //do something
-    cout<<a[3];
-    delete a[];
+1. 引用已经释放的空间
+
+>     int *a=new int(3);
+>     //do something
+>     delete a;
+>     cout<<a;
+
+2. 引用未定义的空间
+
+>     int *a=new int[3];
+>     //do something
+>     cout<<a[3];
+>     delete a[];
 '''
 
 - 内存泄漏：
@@ -65,11 +65,12 @@ C++语言与Java语言的不同之处，其中有一个一定要提到的就是�
 
 - 其它问题：
 
-参考链接：
-        https://isocpp.org
+### 参考链接：
 
-        http://www.cplusplus.com
+        [C++标准](https://isocpp.org)
+        [cplusplus](http://www.cplusplus.com)
+        [stackover](http://www.stackoverflow.com)
 
-        http://www.stackoverflow.com
-参考文献：
+### 参考文献：
+
           C Traps and Pitfalls
