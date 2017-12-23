@@ -19,9 +19,33 @@
 * Rust 语言中的 reference 及其内存管理
 * smart pointer 在项目中的案例分析
 
+## 1st Commit
+
+###提交内容及分工情况
+
+王若晖:
+
+张一卓:
+
+- 阅读了C++智能指针的大部分源码，寻找参考文献
+- 结合源码总结了 auto_ptr 的使用方式，源码的策略，以及引入了 RAII 的概念
+- 完成 `C++ 中的智能指针.md` 中 auto_ptr 的编写
+
+钱劲翔:
+
+### 下一步计划
+
+- 继续结合源码，向`C++ 中的智能指针.md` 中 unique_ptr, shared_ptr 的分析
+- 调研 C++ 标准库以外的智能指针，主要是 boost 库
+- 。。。
+
 ## Links
 
-[Teamwork Repo](https://github.com/noirgif/ustc-compiler-pointer)
+[Teamwork Repository](https://github.com/noirgif/ustc-compiler-pointer)
 
+C++ source code of smart pointers：
 
+[auto_ptr](https://github.com/noirgif/ustc-compiler-pointer/blob/master/References/source_auto_ptr.cpp), [unique_ptr](https://github.com/noirgif/ustc-compiler-pointer/blob/master/References/source_unique_ptr.cpp), [shared_ptr](https://github.com/noirgif/ustc-compiler-pointer/blob/master/References/source_shared_ptr.cpp), [weak_ptr](https://github.com/noirgif/ustc-compiler-pointer/blob/master/References/source_weak_ptr.cpp)
+
+[ICSE2016-SERVO](https://github.com/noirgif/ustc-compiler-pointer/blob/master/References/icse16-servo-preprint.pdf)
 
