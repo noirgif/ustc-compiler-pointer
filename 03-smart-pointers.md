@@ -21,7 +21,7 @@
 
 ## 1st Commit
 
-###提交内容及分工情况
+### 提交内容及分工情况
 
 王若晖:
 
@@ -29,7 +29,7 @@
 
 - 阅读了C++智能指针的大部分源码，寻找参考文献
 - 结合源码总结了 auto_ptr 的使用方式，源码的策略，以及引入了 RAII 的概念
-- 完成 `C++ 中的智能指针.md` 中 auto_ptr 的编写
+- 完成  [C++ 中的智能指针.md](https://github.com/noirgif/ustc-compiler-pointer/blob/master/C%2B%2B%20%E4%B8%AD%E7%9A%84%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88.md) 中 `auto_ptr` 的编写
 
 钱劲翔:
 
