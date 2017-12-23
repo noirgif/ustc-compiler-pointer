@@ -39,20 +39,35 @@ let ii = gen_int(); // error!
 
 如上的程序会在编译时报错。
 
-##`Box<T>`
+## `Box<T>`
 
 如其名所提示的，`Box<T>`提供的是对堆上分配内存的最简单实现，创立Box对象时，会分配堆上的空间当Box对象销毁时，会将带有的object一并销毁。
 
-`Box::new`会在堆上分配能够保存接受该数据的空间，并返回指向该空间的指针(`std::boxed::Box<T>`)。由于历史原因，Box不像一般的引用一样需要`*`解引用。
+`Box::new`会在堆上分配能够保存接受该数据的空间，并返回指向该空间的指针(`std::boxed::Box<T>`)。由于历史原因（继承了pre 1.0的~指针），Box实际类似于基本类型，不需要Deref trait，而是可以直接用`*`解引用，Box在Rust源码中的Deref定义如下（可见[网页](https://doc.rust-lang.org/src/alloc/boxed.rs.html#623)）：
 
 ```rust
-let x = Box::new(5);
-print("x is {}", x);
+#[stable(feature = "rust1", since = "1.0.0")]
+impl<T: ?Sized> Deref for Box<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &**self
+    }
+}
+
+#[stable(feature = "rust1", since = "1.0.0")]
+impl<T: ?Sized> DerefMut for Box<T> {
+    fn deref_mut(&mut self) -> &mut T {
+        &mut **self
+    }
+}
 ```
+由于对一个类实例`x`调用`*`，实际上是调用`*(x.deref())`。但Box的特殊地位使其能够独立于deref trait而对`Box<T>`解引用。
 
-会输出`x is 5` 。
+如果对非Box的类使用如上的定义的话，会因为在deref函数中调用自身而导致无限循环，使编译器报错。
 
-##`Rc<T>`
+
+## `Rc<T>`
 
 `Box<T>`拥有对数据的所有权，因此同一个数据最多只能有一个box指向该数据。
 
@@ -110,4 +125,31 @@ trait RcBoxPtr<T: ?Sized> {
     }
 }
 
+```
+
+当`Rc<T>`对象销毁时，会将对应的计数器减1，当计数器归0时，销毁对应RcBox的内容。
+
+```rust
+#[stable(feature = "rust1", since = "1.0.0")]
+unsafe impl<#[may_dangle] T: ?Sized> Drop for Rc<T> {
+    fn drop(&mut self) {
+        unsafe {
+            let ptr = self.ptr.as_ptr();
+
+            self.dec_strong();
+            if self.strong() == 0 {
+                // destroy the contained object
+                ptr::drop_in_place(self.ptr.as_mut());
+
+                // remove the implicit "strong weak" pointer now that we've
+                // destroyed the contents.
+                self.dec_weak();
+
+                if self.weak() == 0 {
+                    Heap.dealloc(ptr as *mut u8, Layout::for_value(&*ptr));
+                }
+            }
+        }
+    }
+}
 ```
