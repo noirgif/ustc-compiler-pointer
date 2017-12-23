@@ -34,21 +34,21 @@ C++语言与Java语言的不同之处，其中有一个一定要提到的就是�
 来给你带来麻烦。
 下面是两种常见的悬空指针的情况：
     (1)
-
->     int *a=new int(3);
->     //do something
->     delete a;
->     cout<<a;
-
+'''
+    int *a=new int(3);
+    //do something
+    delete a;
+    cout<<a;
+'''
     (引用已经被释放的空间)
 
     (2)
-
->     int *a=new int[3];
->     //do something
->     cout<<a[3];
->     delete a[];
-
+'''
+    int *a=new int[3];
+    //do something
+    cout<<a[3];
+    delete a[];
+'''
     (引用没有被定义的空间)
 
 - 内存泄漏：
@@ -67,8 +67,11 @@ C++语言与Java语言的不同之处，其中有一个一定要提到的就是�
 
 - 其它问题：
 
-参考链接：https://isocpp.org
-          http://www.cplusplus.com
-          http://www.stackoverflow.com
+参考链接：
+        https://isocpp.org
+
+        http://www.cplusplus.com
+
+        http://www.stackoverflow.com
 参考文献：
           C Traps and Pitfalls
