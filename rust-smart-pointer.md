@@ -129,7 +129,7 @@ trait RcBoxPtr<T: ?Sized> {
 
 ```
 
-当`Rc<T>`对象销毁时，会调用drop（类似C++的析构函数），将对应的计数器减1，当计数器归0时，销毁对应RcBox的内容。
+当`Rc<T>`对象销毁时，会调用drop（类似C++的析构函数），将对应的计数器减1，当计数器归0时，销毁对应RcBox的内容。因为该`drop_in_place`函数并不回收RcBox的空间（仅调用了`T`类型的`drop`，如果有)，因此weak和strong元素仍然可用。
 
 ```rust
 #[stable(feature = "rust1", since = "1.0.0")]
@@ -195,9 +195,8 @@ match c {
     }
 ```
 
-
 为了实现这个功能，`RcBox<T>`会在释放完指向内存空间之后仍然维护指向它的`Weak`指针数，当该计数值也降为0后才释放堆上分配的空间。
 
 ## `Arc<T>`
 
-Rust还提供了一种支持多线程使用的Reference Counted，`Arc<T>`，表示"Atomic Reference Counted"。其主要原理是使用原子操作来加减引用计数器，其代价是程序的效率变低。
+Rust还提供了一种支持多线程使用的Reference Counted，`Arc<T>`，表示"Atomic Reference Counted"。其主要原理是使用原子操作来加减引用计数器，但其代价是程序的效率变低，因为每次修改操作都需要互斥。
