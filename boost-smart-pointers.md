@@ -28,6 +28,7 @@ int main()
 
 2. scoped_array
 
+
     这个正如名称中的array，scoped_array是动态分配的数组对象，特点与scoped_ptr一样，都只是保存和占有内存地址。此外它重载了[]运算符，即确实可以像数组一样访问它的元素。
 
 
@@ -60,31 +61,9 @@ int main()
     - 你需要把 this 当作智能指针来使用。
     - shared_ptr的引用计数器分配严重影响了程序的性能。
 
-- 实例
-
-```c++
-
-
-```
 
 6. local_shared_ptr
 
     local_shared_ptr和shared_ptr几乎一样，唯一不同的是它的引用计数是用非原子操作更新的。因此，一个local_shared_ptr的所有的副本必须驻留在本地的单个线程。
-    
+
     local_shared_ptr可以转换为shared_ptr，反之亦然。可以从shared_ptr对象创建local_shared_ptr对象，并且创建新的引用计数，也就是说可以两个local_shared_ptr引用相同的对象，但不共享相同的计数，可以安全地由两个不同的线程使用（不用担心，当只有一个local_shared_ptr计数归0的时候，并不会销毁对象）。
- 
-- 实例
-
-```c++
-#include <boost/local_shared_ptr.hpp>
-#include <iostream>
-void null_deleter(int *)
-{}
-
-int main()
-{
-    int i = 0;
-    boost::local_shared_ptr<int> p(&i, &null_deleter);// 创建一个自定义deleter的local_shared_ptr
-}
-
-```
