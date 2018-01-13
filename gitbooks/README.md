@@ -19,5 +19,4 @@
 * [C++ 中 smart pointer 的标准，实现方式和内存管理](https://github.com/noirgif/ustc-compiler-pointer/blob/master/cpp-smart-pointer.md)
 * [Rust 语言中的智能指针及其内存管理](https://github.com/noirgif/ustc-compiler-pointer/blob/master/rust-smart-pointer.md)
 * [C++ shared_ptr 的简单实现](https://github.com/noirgif/ustc-compiler-pointer/blob/master/implement_shared_ptr.md)
-* smart pointer 在项目中的案例分析
 
