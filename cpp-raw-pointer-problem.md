@@ -1,39 +1,31 @@
-# C++ raw pointer在应用中的缺陷和可能产生的问题
+# C++ 指针存在的缺陷
 
 ## 引言
 
-C++语言与Java语言的不同之处，其中有一个一定要提到的就是指针了，Java是不存在指
-针的，而C++的指针操作反而是C++语言的一个特点(并且因为没有直接对内存的操作，Java
-又被称作是安全的编程语言)。为了探究C++指针指针的新特性，我们有必要先介绍一下
-一般的C++指针以及其可能引发的问题。
+    C++语言与Java语言的不同之处，其中有一个一定要提到的就是指针了，Java是不存在指针的，而C++的指针操作反而是C++语言的一个特点(并且因为没有直接对内存的操作，Java又被称作是安全的编程语言)。为了探究C++指针指针的新特性，我们有必要先介绍一下一般的C++指针以及其可能引发的问题。
 
-## 指针的定义
+### 指针的定义
 
-指针通常意义上指的是内存地址，这是它和C一致的定义的。下面是cplusplus.com上对内存地址的解释：
+    指针通常意义上指的是内存地址，这是它和C一致的定义的。cplusplus.com上对内存地址的解释就是一个编号的数值，这个数值代表了该变量起始地址在计算机内存中存储的位置。也就是说指针是指向存储特定内存空间的变量，指针的值是地址的编号。
 
-> In earlier chapters, variables have been explained as locations in the computer's memory which can be accessed by their identifier (their name). This way, the program does not need to care about the physical address of the data in memory; it simply uses the identifier whenever it needs to refer to the variable.
-> For a C++ program, the memory of a computer is like a succession of memory cells, each one byte in size, and each with a unique address. These single-byte memory cells are ordered in a way that allows data representations larger than one byte to occupy memory cells that have consecutive addresses.
-> This way, each cell can be easily located in the memory by means of its unique address. For example, the memory cell with the address 1776 always follows immediately after the cell with address 1775 and precedes the one with 1777, and is exactly one thousand cells after 776 and exactly one thousand cells before 2776.
-> When a variable is declared, the memory needed to store its value is assigned a specific location in memory (its memory address). Generally, C++ programs do not actively decide the exact memory addresses where its variables are stored. Fortunately, that task is left to the environment where the program is run - generally, an operating system that decides the particular memory locations on runtime. However, it may be useful for a program to be able to obtain the address of a variable during runtime in order to access data cells that are at a certain position relative to it.
+### 指针的相关操作
 
-也就是说指针是指向存储特定内存空间的变量，指针的值是地址的值。
+- 取地址(&):得到一个指向变量的内存地址的指针。
 
-## 对指针的操作
+- 得指针值(*) :得到一个指针变量指向的内存处所储存的值;此外这个运算符也可以定义指针。
 
-- 取一个指针的地址 ：&
-- 得到地址所存放的值 ：*
-- 定义一个指针：type * name
-- 指针的运算符： ++,--,[],=等
+- 指针的运算符(++,--)等:由于指针本身的值也是32位或者64位的值，这些整数操作符功能也基本相似。
 
-## 一般指针会带来的bug
+- 赋值(=):当将指针理解为一个数值时，赋值操作也就很好理解了。但是有的时候你并不能保证指针指向的内存里时正确的对象，这就是我们接下来主要讨论的问题———C++ 指针存在的缺陷。
 
-- 悬空指针：
+## 迷途指针
 
-    悬空指针是指针算是最常见的一种bug了，而且编译器难以察觉。你声明了一个指
-针，并且让它指向某个位置；但是由于种种原因，这个指针指向的内存空间要么已经被释
-放了，要么这个指针所指向的位置根本是一个未定义的位置，这样就会引起悬空指针。悬
-空指针就像定时炸弹，它给你的程序留下了隐患，并且你不知道什么时候它会突然显现出
-来给你带来麻烦。
+迷途指针，或称悬空指针、野指针，指的是不指向任何合法的对象的指针。
+
+当所指向的对象被释放或者收回，但是对该指针没有作任何的修改，以至于该指针仍旧指向已经回收的内存地址，此情况下该指针便称迷途指针。若操作系统将这部分已经释放的内存重新分配给另外一个进程，而原来的程序重新引用现在的迷途指针，则将产生无法预料的后果。因为此时迷途指针所指向的内存现在包含的已经完全是不同的数据。通常来说，若原来的程序继续往迷途指针所指向的内存地址写入数据，这些和原来程序不相关的数据将被损坏，进而导致不可预料的程序错误。这种类型的程序错误，不容易找到问题的原因，通常会导致内存区块错误（Linux系统中）和一般保护错误（Windows系统中）。如果操作系统的内存分配器将已经被覆盖的数据区域再分配，就可能会影响系统的稳定性。
+
+某些编程语言(C++)允许未初始化的指针的存在，而这类指针即为野指针。
+
 下面是两种常见的悬空指针的情况：
 
 1. 引用已经释放的空间
@@ -54,20 +46,79 @@ C++语言与Java语言的不同之处，其中有一个一定要提到的就是�
      delete a[];
 ```
 
-- 内存泄漏：
+迷途指针/野指针这类错误经常会导致安全漏洞。 例如，如果一个指针用来调用一个虚函数，由于vtable指针被覆盖了，因此可能会访问一个不同的地址（指向被利用的代码）。或者，如果该指针用来写入内存，其它的数据结构就有可能损坏了。一旦该指针成为迷途指针，即使这段内存是只读的，仍然会导致信息的泄露（如果感兴趣的数据放在下一个数据结构里面，恰好分配在这段内存之中）或者访问权限的增加（如果现在不可使用的内存恰恰被用来安全检测）。
 
-    当你为一个指针分配内存的时候，那么直到程序运行结束或者这块内存被释放，这
-块内存都是不能被其它程序所使用的。当然一个有着良好编程习惯的程序员自然会即时回
-收这些已近用完但是依然还被占用的内存，但是如果你不去回收它，那就会造成内存泄
-漏。尽管现在电脑的内存早已经上G，但是内存泄漏依然使你的可用内存减少，拖慢代码
-运行速度。
 
-- 不恰当的引用：
+## 内存泄漏：
 
-    这种情况尤其指在发生类型转换的时候，Atype继承了Btype，而当一个Atype的指针
-试图访问Btype占有的内存的时候，编译器也许并不会报错，但是当实际执行的时候就会发
-生 segmentation fault。
+内存泄漏是程序设计中一项常见错误，特别是使用没有内置自动垃圾回收的编程语言(C和C++)。一般情况下，内存泄漏发生是因为不能访问动态分配的内存。不过目前有相当数量的调试工具用于检测不能访问的内存，从而可以防止内存泄漏问题。同时垃圾回收机制则可以应用到任何编程语言，而C／C++也有此类库。
 
+- 一个明显的内存泄漏C++程序段
+
+```c++
+void f(void)
+{
+     int *s = new int[50]; // 申请内存空间 
+     return; 
+     /*  s 指向新分配的堆空间。
+     当此函数返回，离开局部变量s的作用域后将无法得知s的值，
+     分配的内存空间不能被释放。
+    */
+ }
+ int main(void)
+ {
+     while (true) f(); // new函数迟早会由于内存泄漏而返回NULL
+     return 0;
+ }
+
+```
+
+- 一个不太明显的内存泄漏C++程序段
+
+```c++
+typedef struct A{
+    int a[1000];
+    linkA B;
+}A,*linkA
+
+void f(A X,int b)
+{
+     b--;
+     if(b==0) return;
+     else f(A,b);
+     /*这个函数是一个递归函数，
+     虽然C中的函数的形式参数会在函数结束的时候释放，
+     但是由于这个函数递归层数较多以及X占空间较大，应该很快能耗尽堆栈。
+     这也是内存泄漏，实际上只要将参数设为A类型的指针就可以了
+    */
+ }
+ int main(void)
+ {
+     linkA X= new A;
+     int b=100;
+     f(X,b);
+     delete(X); 
+ }
+
+```
+
+内存泄漏会因为减少可用内存的数量从而降低计算机的性能。在最糟糕的情况下，过多的可用内存被分配掉导致全部或部分设备停止正常工作，或者应用程序崩溃。不过内存泄漏带来的后果可能是不严重的，有时甚至能够被常规的手段检测出来。而且在现代操作系统中，一个应用程序使用的常规内存在程序终止时被释放。这表示一个短暂运行的应用程序中的内存泄漏不会导致严重后果。
+
+在以下情况，内存泄漏导致较严重的后果：
+
+- 程序运行后置之不理，并且随着时间的流逝消耗越来越多的内存（比如服务器上的后台任务，尤其是嵌入式系统中的后台任务，这些任务可能被运行后很多内都置之不理）
+
+- 新的内存被频繁地分配，比如当显示电脑游戏或动画视频画面时
+
+- 程序能够请求未被释放的内存,比如共享内存
+
+- 泄漏在操作系统内部发生
+
+- 泄漏在系统关键驱动中发生
+
+- 内存非常有限，比如在嵌入式系统或便携设备中
+
+- 当运行于一个终止时内存并不自动释放的操作系统（比如AmigaOS）之上，而且一旦丢失只能通过重启来恢复
 - 其它问题：
 
 
